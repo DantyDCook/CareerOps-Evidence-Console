@@ -16,9 +16,9 @@ Status: current scaffold
 - [x] capability and role-affinity visibility
 - [x] manifest/index health view
 - [x] disabled write controls with explicit boundary messaging
+- [x] CI typecheck/build workflow
 - [ ] connect to live read API when available
 - [ ] add component/unit tests
-- [ ] add CI typecheck/build workflow
 
 ## v0.2 — Review operations
 
