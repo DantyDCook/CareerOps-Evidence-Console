@@ -1,0 +1,33 @@
+schema_version: "1.0"
+policy_mode: risk_calibrated
+project:
+  name: CareerOps-Evidence-Console
+  default_assurance: medium_high
+policy_precedence: [repository_config, project_memory, global_default]
+workflow:
+  sequence: [plan, build, test, repair, milestone_audit, verify, next]
+  design_audit: when_evidence_contract_or_mutation_path_changes
+  adversarial_audit: milestone_or_high_risk_boundary
+  reopen_plan_only_for: [architectural_contradiction, missing_requirement, invalidated_invariant]
+  batch_nonblocking_repairs: true
+triage:
+  fix_now_if: [build_breaking, test_blocking, authorization_or_privacy_boundary, evidence_corruption_or_loss_risk, destructive_operation_risk, architectural_invariant_violation, high_deferral_cost, trivial_and_immediate]
+  otherwise: {disposition: defer_to_issue, continue_iteration: true}
+  dispositions: [blocker, repair_now, defer_to_issue, accept, invalid]
+regression:
+  small_change: focused
+  subsystem_change: subsystem
+  milestone: full
+  release: full
+milestone_gate:
+  maximum_open: {critical: 0, high: 0, medium: 5, low: unlimited}
+components:
+  evidence_mutation: {assurance: high, adversarial_audit: required}
+  evidence_read: {assurance: medium_high}
+  validation_and_schema: {assurance: medium_high}
+  authentication_if_added: {assurance: high}
+  ui_and_navigation: {assurance: low_medium}
+  presentation_only_changes: {assurance: low}
+issue_tracking:
+  create_for_deferred_findings: true
+  required_fields: [component, observed_behavior, expected_behavior, severity, impact, deferral_risk, evidence, recommended_repair]
