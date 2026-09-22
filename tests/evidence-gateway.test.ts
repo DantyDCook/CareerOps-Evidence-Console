@@ -27,7 +27,7 @@ describe("server Evidence gateway", () => {
     delete process.env.CAREEROPS_ENGINE_API_TOKEN;
 
     expect(getEvidenceMode()).toBe("LIVE");
-    await expect(listEvidenceItems(new URLSearchParams())).rejects.toMatchObject<EvidenceGatewayError>({
+    await expect(listEvidenceItems(new URLSearchParams())).rejects.toMatchObject({
       status: 503,
       code: "CONFIGURATION_ERROR"
     });
@@ -56,7 +56,7 @@ describe("server Evidence gateway", () => {
     process.env.CAREEROPS_ENGINE_API_TOKEN = "server-secret";
     vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 401 })));
 
-    await expect(listEvidenceItems(new URLSearchParams())).rejects.toMatchObject<EvidenceGatewayError>({
+    await expect(listEvidenceItems(new URLSearchParams())).rejects.toMatchObject({
       status: 502,
       code: "ENGINE_AUTH_FAILED"
     });
