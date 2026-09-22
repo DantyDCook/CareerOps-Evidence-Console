@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./evidence-live.css";
 
 export const metadata: Metadata = {
   title: "CareerOps Evidence Console",
-  description: "Human control plane for CareerOps Evidence browsing, review, provenance, and system health."
+  description: "Read-only console for production canonical CareerOps Evidence through CareerOps-Engine."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -1,48 +1,106 @@
 # CareerOps Evidence Console
 
-Human-facing control plane for browsing, reviewing, and eventually governing CareerOps Evidence.
+Human-facing read console for production canonical CareerOps Evidence.
 
-## Architectural boundary
+## Authority and boundaries
 
-This repository is a UI/control-plane client. It does **not** own canonical candidate evidence and must not write directly to `CareerOps-Workspace/career_evidence`.
+CareerOps Evidence Console is not the system of record.
 
-- **CareerOps-Engine** owns Evidence contracts, validation, retrieval, indexing, IDs, and mutation semantics.
-- **CareerOps-Workspace** owns private canonical Evidence instances and generated private indexes.
-- **CareerData** remains source/provenance material.
-- **CareerOps-Evidence-Console** renders and submits operations through Engine/API contracts.
+- **CareerOps-Workspace** owns the private canonical Evidence corpus and generated private indexes.
+- **CareerOps-Engine** owns Evidence contracts, validation, retrieval, authentication, and the remote-safe read projection.
+- **CareerOps-Evidence-Console** renders read DTOs received through CareerOps-Engine.
+- The browser never accesses Workspace directly and never receives the Engine bearer credential.
 
-## v0.1 scope
+The current Console integration is strictly read-only. It does not expose Evidence authoring, approval, apply, mutation, or direct filesystem operations.
 
-The initial build is intentionally read-first:
+## Live architecture
 
-- Evidence Object browser
-- atomic Evidence Element inspection
-- verification-state and claim-classification filters
-- capability, role-affinity, and provenance visibility
-- review queue visualization
-- Evidence corpus/system health
-- typed API boundary with an explicit mock adapter for local development
+```text
+Browser
+  |
+  | same-origin GET /api/evidence/*
+  v
+Next.js Console server
+  |
+  | Authorization: Bearer <server-only token>
+  v
+CareerOps-Engine
+  |
+  | authenticated evidence:read projection
+  v
+private CareerOps-Workspace canonical Evidence
+```
 
-Write actions remain disabled until the Engine exposes the approved Evidence mutation/change-set contract.
+The Console was verified against CareerOps-Engine main at
+`bdbce0f25c3441de9238136db1d3e10943ff51ea`.
 
-## Stack
+Integrated Engine routes:
 
-- Next.js
-- React
-- TypeScript
-- dependency-light CSS
+- `GET /healthz`
+- `GET /v1/evidence/items`
+- `GET /v1/evidence/items/{object_id}`
+- `GET /v1/evidence/search`
 
-## Run locally
+The Console exposes same-origin GET handlers only. Browser request headers are not forwarded to Engine; the server supplies its configured bearer credential and the Engine derives `evidence:read` server-side.
+
+## Configuration
+
+Live mode is the default and fails visibly if it is not fully configured.
+
+```bash
+CAREEROPS_EVIDENCE_MODE=live
+CAREEROPS_ENGINE_BASE_URL=http://127.0.0.1:8000
+CAREEROPS_ENGINE_API_TOKEN=<server-only bearer token>
+```
+
+Do **not** use `NEXT_PUBLIC_*` for the Engine URL or bearer token. The token must remain server-only and must never be committed.
+
+### Explicit mock development mode
+
+Synthetic development data is available only when mock mode is deliberately selected:
+
+```bash
+CAREEROPS_EVIDENCE_MODE=mock
+```
+
+Mock mode does not require an Engine URL or token. Missing or invalid live configuration never falls back to mock mode. The mock fixture contains synthetic DTO-shaped records only; real Workspace Evidence must never be copied into public fixtures.
+
+## Visible read model
+
+The UI displays fields returned by the verified read API, including:
+
+- Evidence Object ID, type, title, organization, summary
+- linked Element count and per-object source count
+- Element type and statement
+- verification state
+- claim classification
+- allowed usage
+- facets
+- capabilities
+- role affinities and assignment provenance
+- allowlisted scalar metrics
+- Engine health status
+
+The current read API intentionally does **not** expose source records, source fragments, filesystem locations, hidden provenance, or corpus/source revision. The Console therefore does not infer or reconstruct those fields.
+
+Production canonical/index-eligible Evidence is shown as production data. Staging, extracted, authoring, and review-candidate concepts are not presented as production Evidence.
+
+## Development
+
+Requires Node 20.9+.
 
 ```bash
 npm install
+npm test
+npm run typecheck
+npm run build
 npm run dev
 ```
 
 Open `http://localhost:3000`.
 
-The app starts in demo mode using synthetic Evidence records. Set `NEXT_PUBLIC_CAREEROPS_API_BASE_URL` once a compatible CareerOps API is available.
+CI runs the focused tests, TypeScript typecheck, and production build. No lint command is currently configured.
 
 ## Repository status
 
-**v0.1 scaffold — read-only control plane.**
+**v0.2 live read integration — read-only canonical Evidence browser/search.**
