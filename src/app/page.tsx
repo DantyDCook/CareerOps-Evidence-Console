@@ -480,6 +480,22 @@ export default function EvidenceConsolePage() {
           <form className="search-form" onSubmit={runElementSearch}>
             <div className="filter-row">
               <label>
+                <span>Object type</span>
+                <select value={objectType} onChange={(event) => setObjectType(event.target.value)}>
+                  {collectionOptions.map((option) => (
+                    <option key={option} value={option}>{option === "ALL" ? "All object types" : humanize(option)}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>Visibility</span>
+                <select value="PRODUCTION_CANONICAL" disabled>
+                  <option>Production canonical</option>
+                </select>
+              </label>
+            </div>
+            <div className="filter-row">
+              <label>
                 <span>Element type</span>
                 <select value={elementType} onChange={(event) => setElementType(event.target.value)}>
                   {elementTypeOptions.map((option) => (
