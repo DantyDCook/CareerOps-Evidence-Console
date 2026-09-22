@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createEvidenceClient, EvidenceClientError } from "../src/lib/evidence-client";
+import { createEvidenceClient } from "../src/lib/evidence-client";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -65,7 +65,7 @@ describe("same-origin Evidence client", () => {
     ));
 
     const client = createEvidenceClient();
-    await expect(client.listItems()).rejects.toMatchObject<EvidenceClientError>({
+    await expect(client.listItems()).rejects.toMatchObject({
       status: 502,
       code: "ENGINE_AUTH_FAILED"
     });
@@ -76,7 +76,7 @@ describe("same-origin Evidence client", () => {
       throw new Error("offline");
     }));
 
-    await expect(createEvidenceClient().getHealth()).rejects.toMatchObject<EvidenceClientError>({
+    await expect(createEvidenceClient().getHealth()).rejects.toMatchObject({
       status: 0,
       code: "CONSOLE_NETWORK_ERROR"
     });
