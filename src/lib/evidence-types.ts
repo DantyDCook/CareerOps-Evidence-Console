@@ -33,79 +33,78 @@ export type EvidenceElementType =
   | "CERTIFICATION_FACT"
   | "OTHER";
 
-export interface EvidenceFacet {
-  id: string;
-  namespace: "skill" | "tool" | "technology" | "methodology" | "domain" | "function" | "platform" | "language" | "framework";
-  label: string;
+export interface EvidenceItemSummary {
+  object_id: string;
+  object_type: EvidenceCollection | string;
+  title: string;
+  organization: string | null;
+  summary: string | null;
+  element_count: number;
+  source_count: number;
+  verification_states: Record<string, number>;
 }
 
-export interface RoleAffinity {
+export interface EvidenceRoleAffinity {
   profile_ref: string;
   relevance: number;
-  assignment_provenance: "EXPLICIT" | "CURATED" | "VALIDATED_INFERENCE" | "INFERRED";
-  rationale?: string;
+  assignment_provenance: string;
 }
 
-export interface EvidenceSource {
-  source_id: string;
-  source_type: string;
-  label: string;
-  locator: string;
+export interface EvidenceMetric {
+  name: string;
+  value: string | number | boolean | null;
+  unit: string | null;
 }
 
 export interface EvidenceElement {
   element_id: string;
   object_ref: string;
-  element_type: EvidenceElementType;
+  element_type: EvidenceElementType | string;
   statement: string;
-  facets: EvidenceFacet[];
+  facets: string[];
   capability_refs: string[];
-  role_affinities: RoleAffinity[];
-  source_refs: string[];
-  verification_state: VerificationState;
-  claim_classification: ClaimClassification;
+  role_affinities: EvidenceRoleAffinity[];
+  metrics: EvidenceMetric[];
+  verification_state: VerificationState | string;
+  claim_classification: ClaimClassification | string;
   allowed_usage: string[];
-  audit: {
-    created_at: string;
-    updated_at?: string;
-  };
 }
 
-export interface EvidenceObject {
-  object_id: string;
-  object_type: EvidenceCollection;
-  title: string;
-  organization?: string | null;
-  start_date?: string | null;
-  end_date?: string | null;
-  status?: string | null;
-  summary?: string | null;
-  element_refs: string[];
-  source_refs: string[];
-  audit: {
-    created_at: string;
-    updated_at?: string;
-  };
+export interface EvidenceItemsResponse {
+  count: number;
+  items: EvidenceItemSummary[];
 }
 
-export interface EvidenceCorpusMetadata {
-  schema_version: number;
-  index_version: number;
-  generated_at: string;
-  eligible_verification_states: VerificationState[];
-  object_count: number;
-  element_count: number;
-  source_count: number;
-  fragment_count: number;
-  source_revision: string;
-  manifest_fresh: boolean;
-  indexes_valid: boolean;
-  mode: "DEMO" | "LIVE";
-}
-
-export interface EvidenceSnapshot {
-  objects: EvidenceObject[];
+export interface EvidenceItemDetailResponse {
+  item: EvidenceItemSummary;
   elements: EvidenceElement[];
-  sources: EvidenceSource[];
-  metadata: EvidenceCorpusMetadata;
+}
+
+export interface EvidenceSearchResponse {
+  count: number;
+  results: EvidenceElement[];
+}
+
+export interface EvidenceHealthResponse {
+  status: string;
+  mode: "LIVE" | "MOCK";
+  upstream: "CareerOps-Engine";
+}
+
+export interface EvidenceListQuery {
+  object_type?: string;
+  text?: string;
+  limit?: number;
+}
+
+export interface EvidenceSearchQuery {
+  object_id?: string;
+  object_type?: string;
+  element_type?: string;
+  facet?: string | string[];
+  capability?: string | string[];
+  role_profile?: string;
+  min_role_relevance?: number;
+  claim_classification?: string;
+  limit?: number;
 }
